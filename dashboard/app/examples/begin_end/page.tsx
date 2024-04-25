@@ -1,3 +1,5 @@
+
+
 export default function Page() {
   return (
     <div>
@@ -6,18 +8,7 @@ export default function Page() {
           <SideNav />
         </div>
         <div className="grow p-6 md:overflow-y-auto md:p-12 bg-orange-200">
-          <div className="h-96">
-            <div>
-              <p className="text-center text-lg">
-                PC:如何布局sideBar和 content{" "}
-              </p>
-              <p className="text-center">sider: overflow 隐藏，固定宽度</p>
-              <p className="text-center">content: overflow y轴，并且弹性</p>
-            </div>
-          </div>
-          <div className="h-96">content</div>
-          <div className="h-96">content</div>
-          <div className="h-96">content</div>
+
         </div>
       </div>
     </div>
