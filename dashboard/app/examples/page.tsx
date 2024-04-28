@@ -24,13 +24,19 @@ let examples = [
   },
   {
     id: 3,
-    question: "如何创建自适应卡片",
+    question: "如何创建自适应卡片布局",
     description: `
-    1. 导航栏竖直的时候，logout在最下方，学习通过grow占据空间
-    2. 移动端适配，nav和logou在一行
-    3. grow是可以套grow的
+    1. 多个card怎么排列
     `,
-    url: "/sidebar",
+    url: "/cards",
+  },
+  {
+    id: 4,
+    question: "如何创建一个好看的卡片",
+    description: `
+    1. 学习具体组件应该怎么写
+    `,
+    url: "/card",
   },
 ];
 
