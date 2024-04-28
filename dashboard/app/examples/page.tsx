@@ -5,35 +5,32 @@ import Markdown from "react-markdown";
 let examples = [
   {
     id: 1,
-    question: "如何创建一个PC的左右布局的导航和内容页面?",
+    question: "如何创建一个导航栏和内容页面?",
     description: `
-    1. 导航固定
-    2. 内容区域扩张
-    3. 滚动条控制导内容区域              
-    `,
-    url: "/pc_sc",
-  },
-  {
-    id: 2,
-    question: "如何创建一个移动适配的导航和内容页面?",
-    description: `
-    1. 先写移动端代码
-        1. flex，flex-col
-        2. 导航占据整个宽度
-        3. 内容块弹性，滚动；overflow可以看做上下布局，从定义位置开始滚动
-    2. pc端代码
-        1. 布局方向row， md: flex-row 
-        2. 导航占据固定宽度
+    1. 自适应pc和移动
+    2. 导航栏固定不随着内容滚动二滚动
     `,
     url: "/app_sc",
   },
   {
-    id: 3,
-    question: "如何创建左侧导航栏适配移动端变成上面导航栏？",
+    id: 2,
+    question: "如何创建自适应导航栏？",
     description: `
-    1. 
+    1. 导航栏竖直的时候，logout在最下方，学习通过grow占据空间
+    2. 移动端适配，nav和logou在一行
+    3. grow是可以套grow的
     `,
-    url: "/begin_end"
+    url: "/sidebar",
+  },
+  {
+    id: 3,
+    question: "如何创建自适应卡片",
+    description: `
+    1. 导航栏竖直的时候，logout在最下方，学习通过grow占据空间
+    2. 移动端适配，nav和logou在一行
+    3. grow是可以套grow的
+    `,
+    url: "/sidebar",
   },
 ];
 

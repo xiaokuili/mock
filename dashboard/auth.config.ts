@@ -1,10 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
-  providers: [
-    // added later in auth.ts since it requires bcrypt which is only compatible with Node.js
-    // while this file is also used in non-Node.js environments
-  ],
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const examples = nextUrl.pathname.startsWith("/examples");
@@ -20,4 +19,5 @@ export const authConfig = {
       return true;
     },
   },
+  providers: [], // Add providers with an empty array for now
 } satisfies NextAuthConfig;
