@@ -24,20 +24,26 @@ const links = [
 export default function Nav() {
   const pathname = usePathname();
 
-  return links.map((link, index) => (
-    <Link key={index} href={link.href}>
-      <Button
-        variant="ghost"
-        className={clsx(
-          "w-full rounded-md flex justify-start py-5 items-center hover:bg-blue-100 mt-1 bg-gray-100",
-          {
-            "bg-blue-100 text-blue-500": link.href === pathname,
-          }
-        )}
-      >
-        {link.icon && <link.icon className="h-4 w-4" />}
-        <span className="text-base pl-1">{link.name}</span>
-      </Button>
-    </Link>
-  ));
+  return (
+    <>
+      {links.map((link) => {
+        const LinkIcon = link.icon;
+        return (
+          <Link
+            key={link.name}
+            href={link.href}
+            className={clsx(
+              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
+              {
+                "bg-sky-100 text-blue-600": pathname === link.href,
+              }
+            )}
+          >
+            <LinkIcon className="w-6" />
+            <p className="hidden md:block">{link.name}</p>
+          </Link>
+        );
+      })}
+    </>
+  );
 }

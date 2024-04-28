@@ -7,8 +7,7 @@ import { signOut } from "@/auth";
 import { title } from "process";
 
 const descript = `
-1. 外层grow会占据内部grwo
-2. 组件其实还是dom元素，只不过放在一起了，所以父亲flex会影响儿子布局`;
+1. grow会等比例占据空间`;
 
 export default function Page() {
   return (

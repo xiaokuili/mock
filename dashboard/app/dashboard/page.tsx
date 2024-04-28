@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import DashboardCard from "@/app/ui/dashboard/card";
 import { lusitana } from "@/app/ui/fonts";
+import Revenue from "@/app/ui/dashboard/revenue";
+import Invoices from "@/app/ui/dashboard/invoices";
 
 export default function Page() {
   return (
@@ -10,7 +12,10 @@ export default function Page() {
         <DashboardCard />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8 "></div>
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2">
+        <Revenue />
+        <Invoices />
+      </div>
     </>
   );
 }

@@ -21,13 +21,10 @@ export default function SideNav() {
             await signOut();
           }}
         >
-          <Button
-            variant="ghost"
-            className="w-full rounded-md flex justify-start py-5 items-center hover:bg-blue-100 mt-1 bg-gray-100"
-          >
-            <PowerIcon className="h-4 w-4" />
-            <span className="text-base pl-2">Sign Out</span>
-          </Button>
+          <div className="flex grow items-center justify-center p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-500 rounded-md md:justify-start md:p-2 md:px-3">
+            <PowerIcon className="w-6" />
+            <span className="text-base pl-2 hidden md:block">Sign Out</span>
+          </div>
         </form>
       </div>
     </div>
