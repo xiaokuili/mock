@@ -1,29 +1,37 @@
-import { fetchRevenue } from "@/app/lib/data";
+import { fetchCardData } from "@/app/lib/data";
 import {
   BanknotesIcon,
   ClockIcon,
   UserGroupIcon,
   InboxIcon,
 } from "@heroicons/react/24/outline";
+import { lusitana } from "@/app/ui/fonts";
 
 const DashboardCard = async () => {
-  const cardData = await fetchRevenue();
-
+  const cardData = await fetchCardData();
   return (
-    <div className="flex justify-between">
-      <div className="w-1/4 pr-4">
-        <Card title="adf" value="asdfasfd" Icon={BanknotesIcon} />
-      </div>
-      <div className="w-1/4 pr-4">
-        <Card title="adf" value="asdfasfd" Icon={BanknotesIcon} />
-      </div>
-      <div className="w-1/4 pr-4">
-        <Card title="adf" value="asdfasfd" Icon={BanknotesIcon} />
-      </div>
-      <div className="w-1/4 pr-4">
-        <Card title="adf" value="asdfasfd" Icon={BanknotesIcon} />
-      </div>
-    </div>
+    <>
+      <Card
+        title="Collected"
+        value={cardData.totalPendingInvoices}
+        Icon={BanknotesIcon}
+      />
+      <Card
+        title="Pending"
+        value={cardData.totalPaidInvoices}
+        Icon={ClockIcon}
+      />
+      <Card
+        title="Total Invoices"
+        value={cardData.numberOfInvoices}
+        Icon={UserGroupIcon}
+      />
+      <Card
+        title="Total Customers"
+        value={cardData.numberOfCustomers}
+        Icon={InboxIcon}
+      />
+    </>
   );
 };
 
@@ -37,12 +45,16 @@ const Card = ({
   Icon: any;
 }) => {
   return (
-    <div className="bg-gray-100 shadow-md rounded-md p-1 flex-col flex h-full">
-      <div className="flex py-3 pl-3">
-        {Icon && <Icon className="w-6 h-6" /> /* 使用Icon组件来显示图标 */}
-        <div className="pl-1 flex-grow">{title}</div>
+    <div className="bg-gray-100 shadow-sm rounded-lg p-2">
+      <div className="flex p-2">
+        {Icon && <Icon className="w-5 h-5" /> /* 使用Icon组件来显示图标 */}
+        <div className="ml-2 font-medium text-sm truncate">{title}</div>
       </div>
-      <div className="bg-white rounded-md text-center flex-grow">{value}</div>
+      <div
+        className={`${lusitana.className}  truncate rounded-md text-center text-2xl px-4 py-8`}
+      >
+        {value}
+      </div>
     </div>
   );
 };
