@@ -11,7 +11,7 @@ export default function SideNav() {
       <div className=" bg-blue-500 rounded-md relative h-40 mt-2 text-white flex items-end">
         <AcmeLogo />
       </div>
-      <div className="flex justify-between flew-row md:flex-col grow">
+      <div className="flex justify-between flew-row md:flex-col grow gap-2 mt-2">
         <Nav />
 
         <div className="hidden grow md:block"></div>

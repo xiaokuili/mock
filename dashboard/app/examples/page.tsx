@@ -38,6 +38,35 @@ let examples = [
     `,
     url: "/card",
   },
+  {
+    id: 5,
+    question: "如何创建一个带有icon的button",
+    description: `
+    1. 使用tailwindcss
+    
+    `,
+    url: "/button",
+  },
+  {
+    id: 5,
+    question: "如何使用usePathname和useRouter接口?",
+    description: `
+    1. usePathname： let you read the current URL's pathname. /dashboard/invoices -> '/dashboard/invoices'
+    2. useRouter: route the client components
+    3. useSearchParams: /dashboard/invoices?page=1&query=pending -> {page: 1, query: 'pending'}
+    4. useSearchParams: 获取参数 ,usePathname：获取当前url, useRouter：处理页面跳转
+    5. 前端会主动回去参数，提交到后端渲染
+    export default function Page({
+      searchParams,
+    }: {
+      searchParams?: {
+        query?: string;
+        page?: string;
+      };
+    })
+    `,
+    url: "/urlhook",
+  },
 ];
 
 export default function Page() {

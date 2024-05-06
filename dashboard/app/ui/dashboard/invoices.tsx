@@ -6,7 +6,6 @@ import Image from "next/image";
 
 export default async function Invoices() {
   const latestInvoices = await fetchLatestInvoices();
-  console.log(latestInvoices);
 
   return (
     <div className="flex w-full flex-col ">
