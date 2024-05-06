@@ -5,13 +5,17 @@ import { useSearchParams, usePathname } from "next/navigation";
 export default function Pagination({ totalPages }: { totalPages: number }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentPage = Number(searchParams.get('page')) || 1;
+  const currentPage = Number(searchParams.get("page")) || 1;
 
   const generatePages = ({ totalPages, currentPage: number }) => {
     let pages = [];
     pages.push({ text: "previous", href: generateLink(currentPage - 1) });
 
-    for (let i = 1; i <= totalPages; i++) {
+    for (
+      let i = 1;
+      i <= (totalPages > currentPage ? totalPages : currentPage);
+      i++
+    ) {
       if (i == currentPage) {
         pages.push({ text: i, href: generateLink(i), click: true });
       } else {
