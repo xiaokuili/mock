@@ -2,14 +2,14 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function Search() {
   const { replace } = useRouter();
   const searchParams = useSearchParams();
   const basePath = usePathname();
 
-  const handleSearch = (query) => {
+  const handleSearch = useDebouncedCallback((query) => {
     const params = new URLSearchParams(searchParams);
     if (query) {
       params.set("query", query);
@@ -17,7 +17,7 @@ export default function Search() {
       params.delete("query");
     }
     replace(basePath + "?" + params.toString());
-  };
+  }, 300);
 
   return (
     <div className="mt-4 flex flex-row items-center justify-between gap-2 md:mt-8 text-2xl w-full">
@@ -36,6 +36,7 @@ export default function Search() {
             placeholder="Search invoices..."
             className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
             onChange={(e) => handleSearch(e.target.value)}
+            defaultValue={searchParams.get("query") || ""}
           />
         </div>
       </div>
