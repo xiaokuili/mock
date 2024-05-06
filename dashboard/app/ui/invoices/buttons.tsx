@@ -1,6 +1,9 @@
 import { PlusIcon } from "@heroicons/react/20/solid";
 
-export default function CreateButton() {
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/outline";
+
+export function CreateButton() {
   return (
     <button
       type="button"
@@ -9,5 +12,25 @@ export default function CreateButton() {
       Create Invoices
       <PlusIcon className="-mr-0.5 h-6 w-6" aria-hidden="true" />
     </button>
+  );
+}
+
+export function EditButton() {
+  return (
+    <>
+      <div className="rounded  p-2 text-gray-900   shadow-sm border hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600  justify-center items-center">
+        <PencilIcon className="h-5 w-5" aria-hidden="true" />
+      </div>
+    </>
+  );
+}
+
+export function DeleteButton() {
+  return (
+    <>
+      <div className="rounded  p-2  text-gray-900    shadow-sm border hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 justify-center items-center">
+        <TrashIcon className="h-5 w-5" aria-hidden="true" />
+      </div>
+    </>
   );
 }

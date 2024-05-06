@@ -1,75 +1,8 @@
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { ClockIcon } from "@heroicons/react/24/outline";
-import { PencilIcon } from "@heroicons/react/24/outline";
-import { TrashIcon } from "@heroicons/react/24/outline";
+
 import { fetchFilteredInvoices } from "@/app/lib/data";
-
-const people = [
-  {
-    name: "Lindsay Walton",
-    email: "lenglengzailuguan@gmail.com",
-    amount: "$89.45",
-    date: "Oct 4, 2023",
-    status: "Active",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Lindsay Walton",
-    email: "lenglengzailuguan@gmail.com",
-    amount: "$89.45",
-    date: "Oct 4, 2023",
-    status: "Pending",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Lindsay Walton",
-    email: "lenglengzailuguan@gmail.com",
-    amount: "$89.45",
-    date: "Oct 4, 2023",
-    status: "Active",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Lindsay Walton",
-    email: "lenglengzailuguan@gmail.com",
-    amount: "$89.45",
-    date: "Oct 4, 2023",
-    status: "Pending",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Lindsay Walton",
-    email: "lenglengzailuguan@gmail.com",
-    amount: "$89.45",
-    date: "Oct 4, 2023",
-    status: "Active",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-];
-
-const EditButton = () => {
-  return (
-    <>
-      <div className="rounded  p-2 text-gray-900   shadow-sm border hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600  justify-center items-center">
-        <PencilIcon className="h-5 w-5" aria-hidden="true" />
-      </div>
-    </>
-  );
-};
-const DeleteButton = () => {
-  return (
-    <>
-      <div className="rounded  p-2  text-gray-900    shadow-sm border hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 justify-center items-center">
-        <TrashIcon className="h-5 w-5" aria-hidden="true" />
-      </div>
-    </>
-  );
-};
+import { EditButton, DeleteButton } from "@/app/ui/invoices/buttons";
 
 const isActive = () => {
   return (

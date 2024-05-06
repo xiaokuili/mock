@@ -5,7 +5,7 @@ import Markdown from "react-markdown";
 let examples = [
   {
     id: 1,
-    question: "如何创建一个导航栏和内容页面?",
+    question: "如何搞定展示问题，如何创建一个导航栏和内容页面?",
     description: `
     1. 自适应pc和移动
     2. 导航栏固定不随着内容滚动二滚动
@@ -14,7 +14,7 @@ let examples = [
   },
   {
     id: 2,
-    question: "如何创建自适应导航栏？",
+    question: "如何搞定展示问题，如何创建自适应导航栏？",
     description: `
     1. 导航栏竖直的时候，logout在最下方，学习通过grow占据空间
     2. 移动端适配，nav和logou在一行
@@ -24,7 +24,7 @@ let examples = [
   },
   {
     id: 3,
-    question: "如何创建自适应卡片布局",
+    question: "如何搞定展示问题，如何创建自适应卡片布局",
     description: `
     1. 多个card怎么排列
     `,
@@ -32,7 +32,7 @@ let examples = [
   },
   {
     id: 4,
-    question: "如何创建一个好看的卡片",
+    question: "如何搞定展示问题，如何创建一个好看的卡片",
     description: `
     1. 学习具体组件应该怎么写
     `,
@@ -49,7 +49,7 @@ let examples = [
   },
   {
     id: 5,
-    question: "如何使用usePathname和useRouter接口?",
+    question: "如何使用usePathname和useRouter和useSearchParams接口?",
     description: `
     1. usePathname： let you read the current URL's pathname. /dashboard/invoices -> '/dashboard/invoices'
     2. useRouter: route the client components
@@ -66,6 +66,36 @@ let examples = [
     })
     `,
     url: "/urlhook",
+  },
+  {
+    id: 6,
+    question: "如何防抖动?",
+    description: `
+    1. import { useDebouncedCallback } from 'use-debounce';
+
+    2. 
+    const handleSearch = useDebouncedCallback((term) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('page', '1');
+      if (term) {
+        params.set('query', term);
+      } else {
+        params.delete('query');
+      }
+      
+    }, 300);
+    3. 短时间只执行一次行为， input可以设置
+    `,
+    url: "/debounced",
+  },
+  {
+    id: 7,
+    question: "如何执行loading和Suspense，来实现loading操作?",
+    description: `
+    1. suspense 用于加载loading
+    
+    `,
+    url: "/debounced",
   },
 ];
 

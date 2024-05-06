@@ -8,6 +8,8 @@ import {
 import { lusitana } from "@/app/ui/fonts";
 
 const DashboardCard = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
   const cardData = await fetchCardData();
   return (
     <>
