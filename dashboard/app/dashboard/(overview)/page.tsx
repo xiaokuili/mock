@@ -3,6 +3,7 @@ import DashboardCard from "@/app/ui/dashboard/card";
 import { lusitana } from "@/app/ui/fonts";
 import Revenue from "@/app/ui/dashboard/revenue";
 import Invoices from "@/app/ui/dashboard/invoices";
+import CardsSkeleton from "@/app/ui/dashboard/cardsSkeleton";
 
 export default function Page() {
   return (
@@ -11,7 +12,7 @@ export default function Page() {
         Dashboard
       </h1>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Suspense fallback={<>loadding...</>}>
+        <Suspense fallback={<CardsSkeleton />}>
           <DashboardCard />
         </Suspense>
       </div>

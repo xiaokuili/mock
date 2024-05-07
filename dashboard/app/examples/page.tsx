@@ -48,7 +48,7 @@ let examples = [
     url: "/button",
   },
   {
-    id: 5,
+    id: 6,
     question: "如何使用usePathname和useRouter和useSearchParams接口?",
     description: `
     1. usePathname： let you read the current URL's pathname. /dashboard/invoices -> '/dashboard/invoices'
@@ -68,7 +68,7 @@ let examples = [
     url: "/urlhook",
   },
   {
-    id: 6,
+    id: 7,
     question: "如何防抖动?",
     description: `
     1. import { useDebouncedCallback } from 'use-debounce';
@@ -89,13 +89,23 @@ let examples = [
     url: "/debounced",
   },
   {
-    id: 7,
+    id: 8,
     question: "如何执行loading和Suspense，来实现loading操作?",
     description: `
     1. suspense 用于加载loading
     
     `,
     url: "/debounced",
+  },
+  {
+    id: 9,
+    question: "如何处理form跳转?",
+    description: `
+    1. useFormState： reduce 函数
+    2. revalidatePath: 清空缓存
+    3. redirect: 跳转
+    `,
+    url: "/form",
   },
 ];
 

@@ -3,28 +3,7 @@ import { ClockIcon } from "@heroicons/react/24/outline";
 
 import { fetchFilteredInvoices } from "@/app/lib/data";
 import { EditButton, DeleteButton } from "@/app/ui/invoices/buttons";
-
-const isActive = () => {
-  return (
-    <>
-      <div className="inline-flex items-center gap-x-1.5 rounded-full font-light bg-green-500 px-1 py-0.5 text-xs  text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
-        Paid
-        <CheckCircleIcon className=" h-4 w-4" aria-hidden="true" />
-      </div>
-    </>
-  );
-};
-
-const isPending = () => {
-  return (
-    <>
-      <div className="inline-flex items-center gap-x-1.5 rounded-full font-light bg-gray-100 text-gray-500 px-1 py-0.5 text-xs  shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-        Pending
-        <ClockIcon className="h-4 w-4" aria-hidden="true" />
-      </div>
-    </>
-  );
-};
+import { IsActive, IsPending } from "@/app/ui/invoices/buttons";
 
 export default async function InvoiceList({
   query,
@@ -108,7 +87,7 @@ export default async function InvoiceList({
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                    {data.status === "paid" ? isActive() : isPending()}
+                    {data.status === "paid" ? <IsActive /> : <IsPending />}
                   </td>
                   <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                     <div className="flex gap-2">
