@@ -107,6 +107,21 @@ let examples = [
     `,
     url: "/form",
   },
+  {
+    id: 10,
+    question: "Server Actions and Mutations?",
+    description: `
+    1. https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations#additional-resources
+    2. form 
+      1. pass arg
+      2. pending status 
+      3. validation and error 
+      4. optimistic update 
+      5. nested element 
+      6. Programmatic form submission
+    `,
+    url: "/action",
+  },
 ];
 
 export default function Page() {

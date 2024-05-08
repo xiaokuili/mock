@@ -10,10 +10,14 @@ import { IsActive, IsPending } from "@/app/ui/invoices/buttons";
 import Link from "next/link";
 import { createInvoice } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
+import { InvoiceForm } from "@/app/lib/definitions";
 
-const InvoiceForm = ({ customers }) => {
+const Form = ({ customers, invoice }: { invoice: InvoiceForm }) => {
   const initState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createInvoice, initState);
+  const getCustomerName = (id: string) => {
+    return customers.find((customer) => customer.id === id)?.name;
+  };
 
   return (
     <form action={dispatch}>
@@ -57,18 +61,26 @@ const InvoiceForm = ({ customers }) => {
               id="customer"
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue=""
+              defaultValue={"" && invoice?.customer_id}
               aria-describedby="customer-error"
             >
-              <option value="" disabled>
-                Select a customer
-              </option>
-              {customers &&
-                customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}
+              {invoice?.customer_id ? (
+                <option key={invoice?.customer_id} value={invoice?.customer_id}>
+                  {getCustomerName(invoice?.customer_id)}
+                </option>
+              ) : (
+                <>
+                  <option value="" disabled>
+                    Select a customer
                   </option>
-                ))}
+                  {customers &&
+                    customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.name}
+                      </option>
+                    ))}
+                </>
+              )}
             </select>
           </div>
         </div>
@@ -91,7 +103,7 @@ const InvoiceForm = ({ customers }) => {
               id="amount"
               name="amount"
               type="number"
-              defaultValue="input amount"
+              defaultValue={"input amount" && invoice?.amount}
               step="0.01"
               placeholder="Enter USD amount"
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
@@ -110,6 +122,7 @@ const InvoiceForm = ({ customers }) => {
                 id="paid"
                 name="status"
                 type="radio"
+                defaultChecked={invoice?.status == "paid"}
                 value="paid"
                 className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600"
               />
@@ -125,6 +138,7 @@ const InvoiceForm = ({ customers }) => {
               <input
                 id="pending"
                 name="status"
+                defaultChecked={invoice?.status == "pending"}
                 type="radio"
                 value="pending"
                 className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600"
@@ -158,4 +172,4 @@ const InvoiceForm = ({ customers }) => {
   );
 };
 
-export default InvoiceForm;
+export default Form;

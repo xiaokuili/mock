@@ -3,7 +3,6 @@ import { lusitana } from "@/app/ui/fonts";
 import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Search from "@/app/ui/invoices/search";
-import { CreateButton } from "@/app/ui/invoices/buttons";
 import InvoiceList from "@/app/ui/invoices/invoices";
 import Pagination from "@/app/ui/invoices/pagination";
 import { fetchInvoicesPages } from "@/app/lib/data";

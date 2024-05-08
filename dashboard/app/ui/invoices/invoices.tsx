@@ -91,9 +91,9 @@ export default async function InvoiceList({
                   </td>
                   <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                     <div className="flex gap-2">
-                      <EditButton />
+                      <EditButton id={data.id} />
 
-                      <DeleteButton />
+                      <DeleteButton id={data.id} />
                     </div>
                   </td>
                 </tr>
