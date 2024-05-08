@@ -54,11 +54,15 @@ const InvoiceForm = ({ customers }) => {
               />
             </div>
             <select
-              id="customerId"
+              id="customer"
               name="customerId"
-              className=" pl-10 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              defaultValue="Choice a customer"
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue=""
+              aria-describedby="customer-error"
             >
+              <option value="" disabled>
+                Select a customer
+              </option>
               {customers &&
                 customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
@@ -83,17 +87,16 @@ const InvoiceForm = ({ customers }) => {
                 aria-hidden="true"
               />
             </div>
-            <select
+            <input
               id="amount"
               name="amount"
-              className=" pl-10 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              defaultValue="1"
-            >
-              <option>1</option>
-              <option>7</option>
-              <option>100</option>
-              <option>30</option>
-            </select>
+              type="number"
+              defaultValue="input amount"
+              step="0.01"
+              placeholder="Enter USD amount"
+              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              aria-describedby="amount-error"
+            />
           </div>
         </div>
 
