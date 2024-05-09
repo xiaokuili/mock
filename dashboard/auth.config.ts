@@ -8,6 +8,8 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const examples = nextUrl.pathname.startsWith("/examples");
       if (examples) return true;
+      const mdx = nextUrl.pathname.startsWith("/mdx-page");
+      if (mdx) return true;
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       if (isOnDashboard) {

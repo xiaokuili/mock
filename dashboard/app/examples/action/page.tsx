@@ -1,36 +1,23 @@
 "use client";
-import { useActionState } from "react";
 import { useState } from "react";
 import { createInvoice, createUser } from "@/app/examples/action/action";
 import { useFormStatus, useFormState } from "react-dom";
 
-const initialState = { message: null, errors: {} };
+const initialState: { message: string } = { message: "" };
 
-function Signup() {
-  //   const [state, formAction] = useActionState(createUser, initialState);
+export default function Page() {
+  const [state, dapatch] = useFormState(createUser, initialState);
+
   return (
-    <form action={formAction}>
-      <label htmlFor="email">Email</label>
-      <input type="text" id="email" name="email" required />
-      {/* ... */}
-      <p aria-live="polite" className="sr-only">
-        {state?.message}
-      </p>
-      <button>Sign up</button>
+    <form action={dapatch}>
+      {state.message && <p>{state.message}</p>}
+      <input />
     </form>
   );
 }
-export default function Page() {
-  console.log(useActionState);
-  console.log(useFormStatus);
-  console.log(useFormState);
-  console.log(useState);
-
-  return <div></div>;
-}
 
 function Button() {
-  const { pending, error, success } = useFormStatus();
+  const { pending } = useFormStatus();
   return (
     <button type="submit" disabled={pending}>
       {pending ? "Searching..." : "Search"}

@@ -116,11 +116,30 @@ let examples = [
       1. pass arg
       2. pending status 
       3. validation and error 
-      4. optimistic update 
-      5. nested element 
-      6. Programmatic form submission
     `,
     url: "/action",
+  },
+  {
+    id: 11,
+    question: "如何两分钟看懂Typescirpt代码?",
+    description: `
+    1. 抽象
+    2. 具体
+    `,
+    url: "/tc",
+  },
+  {
+    id: 12,
+    question: "如何实现一个todolist?",
+    description: `
+    1. input 
+    2. 展示todolist
+    3. 添加todolist
+    4. 删除todolist
+    5. 更新todolist
+    6. 实现一个基本的增删改查功能，感受一下如何组织代码
+    `,
+    url: "/tc",
   },
 ];
 
@@ -132,7 +151,16 @@ export default function Page() {
   );
 }
 
-const QuestionList = ({ examples }) => {
+const QuestionList = ({
+  examples,
+}: {
+  examples: Array<{
+    id: number;
+    question: string;
+    description: string;
+    url: string;
+  }>;
+}) => {
   return (
     <div className="grid grid-cols-1 gap-4 mt-4">
       {examples.map((example) => (
@@ -146,9 +174,8 @@ const QuestionList = ({ examples }) => {
           >
             {example.question}
           </Link>
-          <p className="text-gray-400 mt-2 ">
-            <Markdown>{example.description}</Markdown>
-          </p>
+
+          <Markdown className="text-gray-400">{example.description}</Markdown>
         </div>
       ))}
     </div>
