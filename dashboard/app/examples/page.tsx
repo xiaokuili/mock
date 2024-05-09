@@ -128,19 +128,6 @@ let examples = [
     `,
     url: "/tc",
   },
-  {
-    id: 12,
-    question: "如何实现一个todolist?",
-    description: `
-    1. input 
-    2. 展示todolist
-    3. 添加todolist
-    4. 删除todolist
-    5. 更新todolist
-    6. 实现一个基本的增删改查功能，感受一下如何组织代码
-    `,
-    url: "/tc",
-  },
 ];
 
 export default function Page() {

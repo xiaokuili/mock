@@ -1,9 +1,9 @@
-import { signOut } from "@/auth";
 import AcmeLogo from "@/app/ui/acme-logo";
 import { Button } from "@/components/ui/button";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import { lusitana } from "@/app/ui/fonts";
 import Nav from "./nav";
+import { signup } from "@/app/login/action";
 
 export default function SideNav() {
   return (
@@ -18,7 +18,8 @@ export default function SideNav() {
         <form
           action={async (formData) => {
             "use server";
-            await signOut();
+
+            await signup(formData);
           }}
         >
           <div className="flex grow items-center justify-center p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-500 rounded-md md:justify-start md:p-2 md:px-3">
