@@ -1,50 +1,51 @@
 "use client";
-import { CoreMessage } from "ai";
+
 import { useState } from "react";
-import { Chat, ChatUI } from "./action";
-import { readStreamableValue } from "ai/rsc";
+import { ClientMessage } from "./actions";
+import { useActions, useUIState } from "ai/rsc";
+import { nanoid } from "nanoid";
 
 export default function Home() {
-  const [messages, setMessages] = useState<CoreMessage[]>([]);
   const [input, setInput] = useState<string>("");
-  const [ui, setUI] = useState<JSX.Element>();
+  const [conversation, setConversation] = useUIState();
+  const { continueConversation } = useActions();
 
   return (
     <div>
-      {ui}
-      {messages.map((message, i) => (
-        <div key={i}>
-          <p>{message.content as string}</p>
-        </div>
-      ))}
-      <form
-        action={async () => {
-          const newMessages: CoreMessage[] = [
-            ...messages,
-            { content: input, role: "user" },
-          ];
-          setMessages(newMessages);
-          setInput("");
+      <div>
+        {conversation.map((message: ClientMessage) => (
+          <div key={message.id}>
+            {message.role}: {message.display}
+          </div>
+        ))}
+      </div>
 
-          const result = await Chat(newMessages);
-          for await (const content of readStreamableValue(result)) {
-            setMessages([
-              ...newMessages,
-              { role: "assistant", content: content as string },
-            ]);
-          }
-          const ui = await ChatUI();
-          setUI(ui);
-        }}
-      >
+      <div>
         <input
-          name="chat"
-          id="chat"
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(event) => {
+            setInput(event.target.value);
+          }}
         />
-      </form>
+        <button
+          onClick={async () => {
+            setConversation((currentConversation: ClientMessage[]) => [
+              ...currentConversation,
+              { id: nanoid(), role: "user", display: input },
+            ]);
+
+            const message = await continueConversation(input);
+
+            setConversation((currentConversation: ClientMessage[]) => [
+              ...currentConversation,
+              message,
+            ]);
+          }}
+        >
+          Send Message
+        </button>
+      </div>
     </div>
   );
 }
