@@ -1,51 +1,51 @@
 "use client";
 
 import { useState } from "react";
-import { continueConversation } from "./actions";
-import { readStreamableValue } from "ai/rsc";
-import { CoreMessage } from "ai";
-import { set } from "zod";
-import { Message } from "./actions";
+import { ClientMessage } from "./actions";
+import { useActions, useUIState } from "ai/rsc";
+import { nanoid } from "nanoid";
 
 export default function Home() {
-  const [history, setHistory] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
+  const [conversation, setConversation] = useUIState();
+  const { continueConversation } = useActions();
+
   return (
     <div>
-      {history &&
-        history.map((message, index) => (
-          <div key={index}>{message.content as string}</div>
+      <div>
+        {conversation.map((message: ClientMessage) => (
+          <div key={message.id}>
+            {message.role}: {message.display}
+          </div>
         ))}
+      </div>
 
-      <form
-        action={async () => {
-          const newHistory: Message[] = [
-            ...history,
-            { role: "user", content: input },
-          ];
-
-          setHistory(newHistory);
-          setInput("");
-
-          const result = await continueConversation(newHistory);
-
-          let textContent = "";
-          for await (const delta of readStreamableValue(result)) {
-            textContent = `${textContent}${delta}`;
-
-            setHistory([
-              ...newHistory,
-              { role: "assistant", content: textContent },
-            ]);
-          }
-        }}
-      >
+      <div>
         <input
-          name="input"
-          onChange={(e) => setInput(e.target.value)}
+          type="text"
           value={input}
+          onChange={(event) => {
+            setInput(event.target.value);
+          }}
         />
-      </form>
+        <button
+          onClick={async () => {
+            setConversation((currentConversation: ClientMessage[]) => [
+              ...currentConversation,
+              { id: nanoid(), role: "user", display: input },
+            ]);
+
+            const message = await continueConversation(input);
+
+            setConversation((currentConversation: ClientMessage[]) => [
+              ...currentConversation,
+              message,
+            ]);
+          }}
+        >
+          Send Message
+        </button>
+      </div>
     </div>
   );
 }
