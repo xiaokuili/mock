@@ -1,9 +1,14 @@
-import Image from "next/image";
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+import { Chat } from "@/components/chat";
+import { nanoid } from "ai";
+import { AI } from "./actions";
 
-export default function Home() {
+export const maxDuration = 60;
+
+export default function Page() {
+  const id = nanoid();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
+    <AI>
+      <Chat id={id} />
+    </AI>
   );
 }
