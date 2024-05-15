@@ -6,14 +6,14 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "cwd": "${workspaceFolder}/dashboard"
+      "cwd": "${workspaceFolder}/morphic"
     },
     {
       "name": "Next.js: debug client-side",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000",
-      "cwd": "${workspaceFolder}/dashboard"
+      "cwd": "${workspaceFolder}/morphic"
     },
     {
       "name": "Next.js: debug full stack",
@@ -25,7 +25,7 @@
         "uriFormat": "%s",
         "action": "debugWithChrome"
       },
-      "cwd": "${workspaceFolder}/dashboard"
+      "cwd": "${workspaceFolder}/morphic"
     }
   ]
 }
