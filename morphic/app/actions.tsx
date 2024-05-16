@@ -8,6 +8,7 @@ import {
 } from "ai/rsc";
 import { CoreMessage, nanoid, ToolResultPart } from "ai";
 import { Spinner } from "@/components/ui/spinner";
+import { saveChat } from "@/lib/actions/chat";
 // import { Section } from "@/components/section";
 
 // import { FollowupPanel } from "@/components/followup-panel";
@@ -24,7 +25,6 @@ import { UserMessage } from "@/components/user-message";
 
 async function submit(formData?: FormData, skip?: boolean) {
   "use server";
-
   const aiState = getMutableAIState<typeof AI>();
   const uiStream = createStreamableUI();
   const isGenerating = createStreamableValue(true);
@@ -84,47 +84,15 @@ async function submit(formData?: FormData, skip?: boolean) {
   }
 
   async function processEvents() {
-    // let action: any = { object: { next: "proceed" } };
-    // // If the user skips the task, we proceed to the search
-    // if (!skip) action = (await taskManager(messages)) ?? action;
-
-    // if (action.object.next === "inquire") {
-    //   // Generate inquiry
-    //   const inquiry = await inquire(uiStream, messages);
-    //   uiStream.done();
-    //   isGenerating.done();
-    //   isCollapsed.done(false);
-    //   aiState.done({
-    //     ...aiState.get(),
-    //     messages: [
-    //       ...aiState.get().messages,
-    //       {
-    //         id: nanoid(),
-    //         role: "assistant",
-    //         content: `inquiry: ${inquiry?.question}`,
-    //       },
-    //     ],
-    //   });
-    //   return;
-    // }
-
-    // // Set the collapsed state to true
-    // isCollapsed.done(true);
+    isCollapsed.done(true);
 
     //  Generate the answer
     let answer = "";
-    let toolOutputs: ToolResultPart[] = [];
     let errorOccurred = false;
     const streamText = createStreamableValue<string>();
     uiStream.update(<Spinner />);
 
-    // If useSpecificAPI is enabled, only function calls will be made
-    // If not using a tool, this model generates the answer
-    while (
-      useSpecificAPI
-        ? toolOutputs.length === 0 && answer.length === 0
-        : answer.length === 0
-    ) {
+    while (answer.length === 0) {
       // Search the web and generate the answer
       const { fullResponse, hasError, toolResponses } = await researcher(
         uiStream,
@@ -133,95 +101,38 @@ async function submit(formData?: FormData, skip?: boolean) {
         useSpecificAPI
       );
       answer = fullResponse;
-      toolOutputs = toolResponses;
+
       errorOccurred = hasError;
-
-      // if (toolOutputs.length > 0) {
-      //   toolOutputs.map((output) => {
-      //     aiState.update({
-      //       ...aiState.get(),
-      //       messages: [
-      //         ...aiState.get().messages,
-      //         {
-      //           id: groupeId,
-      //           role: "tool",
-      //           content: JSON.stringify(output.result),
-      //           name: output.toolName,
-      //           type: "tool",
-      //         },
-      //       ],
-      //     });
-      //   });
-      // }
     }
+    streamText.done();
+    if (!errorOccurred) {
+      // Add the answer, related queries, and follow-up panel to the state
+      // Wait for 0.5 second before adding the answer to the state
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // If useSpecificAPI is enabled, generate the answer using the specific model
-    // if (useSpecificAPI && answer.length === 0) {
-    //   // modify the messages to be used by the specific model
-    //   const modifiedMessages = aiState.get().messages.map((msg) =>
-    //     msg.role === "tool"
-    //       ? {
-    //           ...msg,
-    //           role: "assistant",
-    //           content: JSON.stringify(msg.content),
-    //           type: "tool",
-    //         }
-    //       : msg
-    //   ) as CoreMessage[];
-    //   // answer = await writer(uiStream, streamText, modifiedMessages);
-    //   // answer = await writer(uiStream, streamText, modifiedMessages);
-    // } else {
-    //   streamText.done();
-    // }
-
-    // if (!errorOccurred) {
-    //   // Generate related queries
-    //   const relatedQueries = await querySuggestor(uiStream, messages);
-    //   // Add follow-up panel
-    //   uiStream.append(
-    //     // <Section title="Follow-up">
-    //     //   <FollowupPanel />
-    //     // </Section>
-    //     // <FollowupPanel />
-    //     <></>
-    //   );
-
-    //   // Add the answer, related queries, and follow-up panel to the state
-    //   // Wait for 0.5 second before adding the answer to the state
-    //   await new Promise((resolve) => setTimeout(resolve, 500));
-
-    //   aiState.done({
-    //     ...aiState.get(),
-    //     messages: [
-    //       ...aiState.get().messages,
-    //       {
-    //         id: groupeId,
-    //         role: "assistant",
-    //         content: answer,
-    //         type: "answer",
-    //       },
-    //       {
-    //         id: groupeId,
-    //         role: "assistant",
-    //         content: JSON.stringify(relatedQueries),
-    //         type: "related",
-    //       },
-    //       {
-    //         id: groupeId,
-    //         role: "assistant",
-    //         content: "followup",
-    //         type: "followup",
-    //       },
-    //     ],
-    //   });
-    // }
-
-    // isGenerating.done(false);
+      aiState.done({
+        ...aiState.get(),
+        messages: [
+          ...aiState.get().messages,
+          {
+            id: groupeId,
+            role: "assistant",
+            content: answer,
+            type: "answer",
+          },
+          {
+            id: groupeId,
+            role: "assistant",
+            content: "followup",
+            type: "followup",
+          },
+        ],
+      });
+    }
+    isGenerating.done(false);
     uiStream.done();
   }
-
   processEvents();
-
   return {
     id: nanoid(),
     isGenerating: isGenerating.value,
@@ -250,7 +161,6 @@ const initialAIState: AIState = {
 
 const initialUIState: UIState = [];
 
-// AI is a provider you wrap your application with so you can access AI and UI state in your components.
 export const AI = createAI<AIState, UIState>({
   actions: {
     submit,
@@ -304,7 +214,7 @@ export const AI = createAI<AIState, UIState>({
       title,
       messages: updatedMessages,
     };
-    // await saveChat(chat);
+    await saveChat(chat);
   },
 });
 

@@ -5,8 +5,9 @@ import {
   ToolResultPart,
   streamText as nonexperimental_streamText,
 } from "ai";
-// import { Section } from "@/components/section";
-import openai from "./openai"; // import { BotMessage } from "@/components/message";
+import { Section } from "@/components/section";
+import { createOpenAI } from "@ai-sdk/openai";
+import { BotMessage } from "@/components/message";
 import { getTools } from "./tools";
 
 export async function researcher(
@@ -15,13 +16,17 @@ export async function researcher(
   messages: CoreMessage[],
   useSpecificModel?: boolean
 ) {
+  const openai = createOpenAI({
+    baseURL: process.env.OPENAI_API_BASE, // optional base URL for proxies etc.
+    apiKey: process.env.OPENAI_API_KEY, // optional API key, default to env property OPENAI_API_KEY
+  });
+
   let fullResponse = "";
   let hasError = false;
   const answerSection = (
-    // <Section title="Answer">
-    //   <BotMessage content={streamText.value} />
-    // </Section>
-    <>reseracher</>
+    <Section title="Answer">
+      <BotMessage content={streamText.value} />
+    </Section>
   );
 
   let isFirstToolResponse = true;
@@ -78,7 +83,6 @@ export async function researcher(
         break;
     }
   }
-
   messages.push({
     role: "assistant",
     content: [{ type: "text", text: fullResponse }, ...toolCalls],
