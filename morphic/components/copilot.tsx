@@ -1,85 +1,85 @@
-"use client";
+'use client'
 
-import React, { useEffect, useState } from "react";
-import { PartialInquiry } from "@/lib/schema/inquery";
-import { Input } from "./ui/input";
-import { Checkbox } from "./ui/checkbox";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { ArrowRight, Check, FastForward, Sparkles } from "lucide-react";
-import { useActions, useStreamableValue, useUIState } from "ai/rsc";
-import type { AI } from "@/app/actions";
-import { IconLogo } from "./ui/icons";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from 'react'
+import { PartialInquiry } from '@/lib/schema/inquiry'
+import { Input } from './ui/input'
+import { Checkbox } from './ui/checkbox'
+import { Button } from './ui/button'
+import { Card } from './ui/card'
+import { ArrowRight, Check, FastForward, Sparkles } from 'lucide-react'
+import { useActions, useStreamableValue, useUIState } from 'ai/rsc'
+import type { AI } from '@/app/actions'
+import { IconLogo } from './ui/icons'
+import { cn } from '@/lib/utils'
 
 export type CopilotProps = {
-  inquiry?: PartialInquiry;
-};
+  inquiry?: PartialInquiry
+}
 
 export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
-  const [completed, setCompleted] = useState(false);
-  const [query, setQuery] = useState("");
-  const [skipped, setSkipped] = useState(false);
-  const [data, error, pending] = useStreamableValue<PartialInquiry>(inquiry);
+  const [completed, setCompleted] = useState(false)
+  const [query, setQuery] = useState('')
+  const [skipped, setSkipped] = useState(false)
+  const [data, error, pending] = useStreamableValue<PartialInquiry>(inquiry)
   const [checkedOptions, setCheckedOptions] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [, setMessages] = useUIState<typeof AI>();
-  const { submit } = useActions();
+    [key: string]: boolean
+  }>({})
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true)
+  const [, setMessages] = useUIState<typeof AI>()
+  const { submit } = useActions()
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
-    checkIfButtonShouldBeEnabled();
-  };
+    setQuery(event.target.value)
+    checkIfButtonShouldBeEnabled()
+  }
 
   const handleOptionChange = (selectedOption: string) => {
     const updatedCheckedOptions = {
       ...checkedOptions,
-      [selectedOption]: !checkedOptions[selectedOption],
-    };
-    setCheckedOptions(updatedCheckedOptions);
-    checkIfButtonShouldBeEnabled(updatedCheckedOptions);
-  };
+      [selectedOption]: !checkedOptions[selectedOption]
+    }
+    setCheckedOptions(updatedCheckedOptions)
+    checkIfButtonShouldBeEnabled(updatedCheckedOptions)
+  }
 
   const checkIfButtonShouldBeEnabled = (currentOptions = checkedOptions) => {
     const anyCheckboxChecked = Object.values(currentOptions).some(
-      (checked) => checked
-    );
-    setIsButtonDisabled(!(anyCheckboxChecked || query));
-  };
+      checked => checked
+    )
+    setIsButtonDisabled(!(anyCheckboxChecked || query))
+  }
 
   const updatedQuery = () => {
     const selectedOptions = Object.entries(checkedOptions)
       .filter(([, checked]) => checked)
-      .map(([option]) => option);
-    return [...selectedOptions, query].filter(Boolean).join(", ");
-  };
+      .map(([option]) => option)
+    return [...selectedOptions, query].filter(Boolean).join(', ')
+  }
 
   useEffect(() => {
-    checkIfButtonShouldBeEnabled();
+    checkIfButtonShouldBeEnabled()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [query])
 
   const onFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     skip?: boolean
   ) => {
-    e.preventDefault();
-    setCompleted(true);
-    setSkipped(skip || false);
+    e.preventDefault()
+    setCompleted(true)
+    setSkipped(skip || false)
 
     const formData = skip
       ? undefined
-      : new FormData(e.target as HTMLFormElement);
+      : new FormData(e.target as HTMLFormElement)
 
-    const response = await submit(formData, skip);
-    setMessages((currentMessages) => [...currentMessages, response]);
-  };
+    const response = await submit(formData, skip)
+    setMessages(currentMessages => [...currentMessages, response])
+  }
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
-    onFormSubmit(e as unknown as React.FormEvent<HTMLFormElement>, true);
-  };
+    onFormSubmit(e as unknown as React.FormEvent<HTMLFormElement>, true)
+  }
 
   if (error) {
     return (
@@ -91,11 +91,11 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
           </h5>
         </div>
       </Card>
-    );
+    )
   }
 
   if (skipped) {
-    return null;
+    return null
   }
 
   if (completed) {
@@ -109,7 +109,7 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
         </div>
         <Check size={16} className="text-green-500 w-4 h-4" />
       </Card>
-    );
+    )
   } else {
     return (
       <Card className="p-4 rounded-lg w-full mx-auto">
@@ -120,7 +120,7 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
         </div>
         <form onSubmit={onFormSubmit}>
           <div className="flex flex-wrap justify-start mb-4">
-            {data?.options?.map((option: any, index) => (
+            {data?.options?.map((option, index) => (
               <div
                 key={`option-${index}`}
                 className="flex items-center space-x-1.5 mb-2"
@@ -174,6 +174,6 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
           </div>
         </form>
       </Card>
-    );
+    )
   }
-};
+}

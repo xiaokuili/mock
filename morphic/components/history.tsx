@@ -4,20 +4,20 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, Menu } from "lucide-react";
-import { cn } from "@/lib/utils";
-import HistoryItem from "./history-item";
-import { Chat } from "@/lib/types";
-import { History as HistoryIcon } from "lucide-react";
-import { ClearHistory } from "./clear-history";
+  SheetTrigger
+} from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, Menu } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import HistoryItem from './history-item'
+import { Chat } from '@/lib/types'
+import { History as HistoryIcon } from 'lucide-react'
+import { ClearHistory } from './clear-history'
 
 type HistoryProps = {
-  location: "sidebar" | "header";
-  chats: Chat[];
-};
+  location: 'sidebar' | 'header'
+  chats: Chat[]
+}
 
 export function History({ location, chats }: HistoryProps) {
   return (
@@ -27,10 +27,10 @@ export function History({ location, chats }: HistoryProps) {
           variant="ghost"
           size="icon"
           className={cn({
-            "rounded-full text-foreground/30": location === "sidebar",
+            'rounded-full text-foreground/30': location === 'sidebar'
           })}
         >
-          {location === "header" ? <Menu /> : <ChevronLeft size={16} />}
+          {location === 'header' ? <Menu /> : <ChevronLeft size={16} />}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-64 rounded-tl-xl rounded-bl-xl">
@@ -46,9 +46,9 @@ export function History({ location, chats }: HistoryProps) {
               No search history
             </div>
           ) : (
-            chats?.map(
-              (chat: Chat) => chat && <HistoryItem key={chat.id} chat={chat} />
-            )
+            chats?.map((chat: Chat) => (
+              chat && <HistoryItem key={chat.id} chat={chat} />
+            ))
           )}
         </div>
         <SheetFooter>
@@ -56,5 +56,5 @@ export function History({ location, chats }: HistoryProps) {
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-import { createStreamableUI, createStreamableValue } from "ai/rsc";
+import { createStreamableUI, createStreamableValue } from 'ai/rsc'
 import {
   CoreMessage,
   ToolCallPart,
   ToolResultPart,
-  streamText as nonexperimental_streamText,
-} from "ai";
-import { Section } from "@/components/section";
-import { createOpenAI } from "@ai-sdk/openai";
-import { BotMessage } from "@/components/message";
-import { getTools } from "./tools";
+  streamText as nonexperimental_streamText
+} from 'ai'
+import { Section } from '@/components/section'
+import { OpenAI } from '@ai-sdk/openai'
+import { BotMessage } from '@/components/message'
+import { getTools } from './tools'
 
 export async function researcher(
   uiStream: ReturnType<typeof createStreamableUI>,
@@ -16,23 +16,24 @@ export async function researcher(
   messages: CoreMessage[],
   useSpecificModel?: boolean
 ) {
-  const openai = createOpenAI({
-    baseURL: process.env.OPENAI_API_BASE, // optional base URL for proxies etc.
+  const openai = new OpenAI({
+    baseUrl: process.env.OPENAI_API_BASE, // optional base URL for proxies etc.
     apiKey: process.env.OPENAI_API_KEY, // optional API key, default to env property OPENAI_API_KEY
-  });
+    organization: '' // optional organization
+  })
 
-  let fullResponse = "";
-  let hasError = false;
+  let fullResponse = ''
+  let hasError = false
   const answerSection = (
     <Section title="Answer">
       <BotMessage content={streamText.value} />
     </Section>
-  );
+  )
 
-  let isFirstToolResponse = true;
+  let isFirstToolResponse = true
   const currentDate = new Date().toLocaleString();
   const result = await nonexperimental_streamText({
-    model: openai.chat(process.env.OPENAI_API_MODEL || "gpt-3.5-turbo"),
+    model: openai.chat(process.env.OPENAI_API_MODEL || 'gpt-4o'),
     maxTokens: 2500,
     system: `As a professional search expert, you possess the ability to search for any information on the web.
     or any information on the web.
@@ -46,52 +47,52 @@ export async function researcher(
       uiStream,
       fullResponse,
       hasError,
-      isFirstToolResponse,
-    }),
-  });
+      isFirstToolResponse
+    })
+  })
 
   // Process the response
-  const toolCalls: ToolCallPart[] = [];
-  const toolResponses: ToolResultPart[] = [];
+  const toolCalls: ToolCallPart[] = []
+  const toolResponses: ToolResultPart[] = []
   for await (const delta of result.fullStream) {
     switch (delta.type) {
-      case "text-delta":
+      case 'text-delta':
         if (delta.textDelta) {
           // If the first text delta is available, add a UI section
           if (fullResponse.length === 0 && delta.textDelta.length > 0) {
             // Update the UI
-            uiStream.update(answerSection);
+            uiStream.update(answerSection)
           }
 
-          fullResponse += delta.textDelta;
-          streamText.update(fullResponse);
+          fullResponse += delta.textDelta
+          streamText.update(fullResponse)
         }
-        break;
-      case "tool-call":
-        toolCalls.push(delta);
-        break;
-      case "tool-result":
+        break
+      case 'tool-call':
+        toolCalls.push(delta)
+        break
+      case 'tool-result':
         // Append the answer section if the specific model is not used
         if (!useSpecificModel && toolResponses.length === 0) {
-          uiStream.append(answerSection);
+          uiStream.append(answerSection)
         }
-        toolResponses.push(delta);
-        break;
-      case "error":
-        hasError = true;
-        fullResponse += `\nError occurred while executing the tool`;
-        break;
+        toolResponses.push(delta)
+        break
+      case 'error':
+        hasError = true
+        fullResponse += `\nError occurred while executing the tool`
+        break
     }
   }
   messages.push({
-    role: "assistant",
-    content: [{ type: "text", text: fullResponse }, ...toolCalls],
-  });
+    role: 'assistant',
+    content: [{ type: 'text', text: fullResponse }, ...toolCalls]
+  })
 
   if (toolResponses.length > 0) {
     // Add tool responses to the messages
-    messages.push({ role: "tool", content: toolResponses });
+    messages.push({ role: 'tool', content: toolResponses })
   }
 
-  return { result, fullResponse, hasError, toolResponses };
+  return { result, fullResponse, hasError, toolResponses }
 }

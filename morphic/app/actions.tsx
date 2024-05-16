@@ -4,64 +4,64 @@ import {
   createStreamableUI,
   createStreamableValue,
   getAIState,
-  getMutableAIState,
-} from "ai/rsc";
-import { CoreMessage, nanoid, ToolResultPart } from "ai";
-import { Spinner } from "@/components/ui/spinner";
-import { saveChat } from "@/lib/actions/chat";
-import { Section } from "@/components/section";
-
-import { FollowupPanel } from "@/components/followup-panel";
-import { researcher } from "@/lib/agents";
-// import { writer } from "@/lib/agents/writer";
-// import { saveChat } from "@/lib/actions/chat";
-import { Chat } from "@/lib/types";
-import { AIMessage } from "@/lib/types";
-import { UserMessage } from "@/components/user-message";
-// import { BotMessage } from "@/components/message";
-// import { SearchSection } from "@/components/search-section";
-// import SearchRelated from "@/components/search-related";
-// import { CopilotDisplay } from "@/components/copilot-display";
+  getMutableAIState
+} from 'ai/rsc'
+import { CoreMessage, nanoid, ToolResultPart } from 'ai'
+import { Spinner } from '@/components/ui/spinner'
+import { Section } from '@/components/section'
+import { FollowupPanel } from '@/components/followup-panel'
+import { inquire, researcher, taskManager, querySuggestor } from '@/lib/agents'
+import { writer } from '@/lib/agents/writer'
+import { saveChat } from '@/lib/actions/chat'
+import { Chat } from '@/lib/types'
+import { AIMessage } from '@/lib/types'
+import { UserMessage } from '@/components/user-message'
+import { BotMessage } from '@/components/message'
+import { SearchSection } from '@/components/search-section'
+import SearchRelated from '@/components/search-related'
+import { CopilotDisplay } from '@/components/copilot-display'
 
 async function submit(formData?: FormData, skip?: boolean) {
-  "use server";
-  const aiState = getMutableAIState<typeof AI>();
-  const uiStream = createStreamableUI();
-  const isGenerating = createStreamableValue(true);
-  const isCollapsed = createStreamableValue(false);
+  'use server'
+
+  const aiState = getMutableAIState<typeof AI>()
+  const uiStream = createStreamableUI()
+  const isGenerating = createStreamableValue(true)
+  const isCollapsed = createStreamableValue(false)
   // Get the messages from the state, filter out the tool messages
   const messages: CoreMessage[] = [...(aiState.get().messages as any[])].filter(
-    (message) =>
-      message.role !== "tool" &&
-      message.type !== "followup" &&
-      message.type !== "related" &&
-      message.type !== "end"
-  );
+    message =>
+      message.role !== 'tool' &&
+      message.type !== 'followup' &&
+      message.type !== 'related' &&
+      message.type !== 'end'
+  )
 
   // goupeiId is used to group the messages for collapse
-  const groupeId = nanoid();
+  const groupeId = nanoid()
 
-  const useSpecificAPI = process.env.USE_SPECIFIC_API_FOR_WRITER === "true";
-  const maxMessages = useSpecificAPI ? 5 : 10;
+  const useSpecificAPI = process.env.USE_SPECIFIC_API_FOR_WRITER === 'true'
+  const maxMessages = useSpecificAPI ? 5 : 10
   // Limit the number of messages to the maximum
-  messages.splice(0, Math.max(messages.length - maxMessages, 0));
+  messages.splice(0, Math.max(messages.length - maxMessages, 0))
   // Get the user input from the form data
   const userInput = skip
     ? `{"action": "skip"}`
-    : (formData?.get("input") as string);
+    : (formData?.get('input') as string)
 
   const content = skip
     ? userInput
     : formData
     ? JSON.stringify(Object.fromEntries(formData))
-    : null;
+    : null
   const type = skip
     ? undefined
-    : formData?.has("input")
-    ? "input"
-    : formData?.has("related_query")
-    ? "input_related"
-    : "inquiry";
+    : formData?.has('input')
+    ? 'input'
+    : formData?.has('related_query')
+    ? 'input_related'
+    : 'inquiry'
+
   // Add the user message to the state
   if (content) {
     aiState.update({
@@ -70,44 +70,122 @@ async function submit(formData?: FormData, skip?: boolean) {
         ...aiState.get().messages,
         {
           id: nanoid(),
-          role: "user",
+          role: 'user',
           content,
-          type,
-        },
-      ],
-    });
+          type
+        }
+      ]
+    })
     messages.push({
-      role: "user",
-      content,
-    });
+      role: 'user',
+      content
+    })
   }
 
   async function processEvents() {
-    isCollapsed.done(true);
+    let action: any = { object: { next: 'proceed' } }
+    // If the user skips the task, we proceed to the search
+    if (!skip) action = (await taskManager(messages)) ?? action
+
+    if (action.object.next === 'inquire') {
+      // Generate inquiry
+      const inquiry = await inquire(uiStream, messages)
+      uiStream.done()
+      isGenerating.done()
+      isCollapsed.done(false)
+      aiState.done({
+        ...aiState.get(),
+        messages: [
+          ...aiState.get().messages,
+          {
+            id: nanoid(),
+            role: 'assistant',
+            content: `inquiry: ${inquiry?.question}`
+          }
+        ]
+      })
+      return
+    }
+
+    // Set the collapsed state to true
+    isCollapsed.done(true)
 
     //  Generate the answer
-    let answer = "";
-    let errorOccurred = false;
-    const streamText = createStreamableValue<string>();
-    uiStream.update(<Spinner />);
+    let answer = ''
+    let toolOutputs: ToolResultPart[] = []
+    let errorOccurred = false
+    const streamText = createStreamableValue<string>()
+    uiStream.update(<Spinner />)
 
-    while (answer.length === 0) {
+    // If useSpecificAPI is enabled, only function calls will be made
+    // If not using a tool, this model generates the answer
+    while (
+      useSpecificAPI
+        ? toolOutputs.length === 0 && answer.length === 0
+        : answer.length === 0
+    ) {
       // Search the web and generate the answer
       const { fullResponse, hasError, toolResponses } = await researcher(
         uiStream,
         streamText,
         messages,
         useSpecificAPI
-      );
-      answer = fullResponse;
+      )
+      answer = fullResponse
+      toolOutputs = toolResponses
+      errorOccurred = hasError
 
-      errorOccurred = hasError;
+      if (toolOutputs.length > 0) {
+        toolOutputs.map(output => {
+          aiState.update({
+            ...aiState.get(),
+            messages: [
+              ...aiState.get().messages,
+              {
+                id: groupeId,
+                role: 'tool',
+                content: JSON.stringify(output.result),
+                name: output.toolName,
+                type: 'tool'
+              }
+            ]
+          })
+        })
+      }
     }
-    streamText.done();
+
+    // If useSpecificAPI is enabled, generate the answer using the specific model
+    if (useSpecificAPI && answer.length === 0) {
+      // modify the messages to be used by the specific model
+      const modifiedMessages = aiState.get().messages.map(msg =>
+        msg.role === 'tool'
+          ? {
+              ...msg,
+              role: 'assistant',
+              content: JSON.stringify(msg.content),
+              type: 'tool'
+            }
+          : msg
+      ) as CoreMessage[]
+      const latestMessages = modifiedMessages.slice(maxMessages * -1)
+      answer = await writer(uiStream, streamText, latestMessages)
+    } else {
+      streamText.done()
+    }
+
     if (!errorOccurred) {
+      // Generate related queries
+      const relatedQueries = await querySuggestor(uiStream, messages)
+      // Add follow-up panel
+      uiStream.append(
+        <Section title="Follow-up">
+          <FollowupPanel />
+        </Section>
+      )
+
       // Add the answer, related queries, and follow-up panel to the state
       // Wait for 0.5 second before adding the answer to the state
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       aiState.done({
         ...aiState.get(),
@@ -115,95 +193,105 @@ async function submit(formData?: FormData, skip?: boolean) {
           ...aiState.get().messages,
           {
             id: groupeId,
-            role: "assistant",
+            role: 'assistant',
             content: answer,
-            type: "answer",
+            type: 'answer'
           },
           {
             id: groupeId,
-            role: "assistant",
-            content: "followup",
-            type: "followup",
+            role: 'assistant',
+            content: JSON.stringify(relatedQueries),
+            type: 'related'
           },
-        ],
-      });
+          {
+            id: groupeId,
+            role: 'assistant',
+            content: 'followup',
+            type: 'followup'
+          }
+        ]
+      })
     }
-    isGenerating.done(false);
-    uiStream.done();
+
+    isGenerating.done(false)
+    uiStream.done()
   }
-  processEvents();
+
+  processEvents()
+
   return {
     id: nanoid(),
     isGenerating: isGenerating.value,
     component: uiStream.value,
-    isCollapsed: isCollapsed.value,
-  };
+    isCollapsed: isCollapsed.value
+  }
 }
 
 export type AIState = {
-  messages: AIMessage[];
-  chatId: string;
-  isSharePage?: boolean;
-};
+  messages: AIMessage[]
+  chatId: string
+  isSharePage?: boolean
+}
 
 export type UIState = {
-  id: string;
-  component: React.ReactNode;
-  isGenerating?: StreamableValue<boolean>;
-  isCollapsed?: StreamableValue<boolean>;
-}[];
+  id: string
+  component: React.ReactNode
+  isGenerating?: StreamableValue<boolean>
+  isCollapsed?: StreamableValue<boolean>
+}[]
 
 const initialAIState: AIState = {
   chatId: nanoid(),
-  messages: [],
-};
+  messages: []
+}
 
-const initialUIState: UIState = [];
+const initialUIState: UIState = []
 
+// AI is a provider you wrap your application with so you can access AI and UI state in your components.
 export const AI = createAI<AIState, UIState>({
   actions: {
-    submit,
+    submit
   },
   initialUIState,
   initialAIState,
   onGetUIState: async () => {
-    "use server";
+    'use server'
 
-    const aiState = getAIState();
+    const aiState = getAIState()
     if (aiState) {
-      const uiState = getUIStateFromAIState(aiState);
-      return uiState;
+      const uiState = getUIStateFromAIState(aiState)
+      return uiState
     } else {
-      return;
+      return
     }
   },
   onSetAIState: async ({ state, done }) => {
-    "use server";
+    'use server'
 
     // Check if there is any message of type 'answer' in the state messages
-    if (!state.messages.some((e) => e.type === "answer")) {
-      return;
+    if (!state.messages.some(e => e.type === 'answer')) {
+      return
     }
 
-    const { chatId, messages } = state;
-    const createdAt = new Date();
-    const userId = "anonymous";
-    const path = `/search/${chatId}`;
+    const { chatId, messages } = state
+    const createdAt = new Date()
+    const userId = 'anonymous'
+    const path = `/search/${chatId}`
     const title =
       messages.length > 0
         ? JSON.parse(messages[0].content)?.input?.substring(0, 100) ||
-          "Untitled"
-        : "Untitled";
+          'Untitled'
+        : 'Untitled'
     // Add an 'end' message at the end to determine if the history needs to be reloaded
     const updatedMessages: AIMessage[] = [
       ...messages,
       {
         id: nanoid(),
-        role: "assistant",
+        role: 'assistant',
         content: `end`,
-        type: "end",
-      },
-    ];
+        type: 'end'
+      }
+    ]
 
     const chat: Chat = {
       id: chatId,
@@ -211,34 +299,34 @@ export const AI = createAI<AIState, UIState>({
       userId,
       path,
       title,
-      messages: updatedMessages,
-    };
-    await saveChat(chat);
-  },
-});
+      messages: updatedMessages
+    }
+    await saveChat(chat)
+  }
+})
 
 export const getUIStateFromAIState = (aiState: Chat) => {
-  const chatId = aiState.chatId;
-  const isSharePage = aiState.isSharePage;
+  const chatId = aiState.chatId
+  const isSharePage = aiState.isSharePage
   return aiState.messages
     .map((message, index) => {
-      const { role, content, id, type, name } = message;
+      const { role, content, id, type, name } = message
 
       if (
         !type ||
-        type === "end" ||
-        (isSharePage && type === "related") ||
-        (isSharePage && type === "followup")
+        type === 'end' ||
+        (isSharePage && type === 'related') ||
+        (isSharePage && type === 'followup')
       )
-        return null;
+        return null
 
       switch (role) {
-        case "user":
+        case 'user':
           switch (type) {
-            case "input":
-            case "input_related":
-              const json = JSON.parse(content);
-              const value = type === "input" ? json.input : json.related_query;
+            case 'input':
+            case 'input_related':
+              const json = JSON.parse(content)
+              const value = type === 'input' ? json.input : json.related_query
               return {
                 id,
                 component: (
@@ -247,80 +335,75 @@ export const getUIStateFromAIState = (aiState: Chat) => {
                     chatId={chatId}
                     showShare={index === 0 && !isSharePage}
                   />
-                ),
-              };
-            case "inquiry":
+                )
+              }
+            case 'inquiry':
               return {
                 id,
-                // component: <CopilotDisplay content={content} />,
-              };
+                component: <CopilotDisplay content={content} />
+              }
           }
-        case "assistant":
-          const answer = createStreamableValue();
-          answer.done(content);
+        case 'assistant':
+          const answer = createStreamableValue()
+          answer.done(content)
           switch (type) {
-            case "answer":
+            case 'answer':
               return {
                 id,
                 component: (
-                  // <Section title="Answer">
-                  //   <BotMessage content={answer.value} />
-                  // </Section>
-                  // <BotMessage content={answer.value} />
-                  <></>
-                ),
-              };
-            case "related":
-              const relatedQueries = createStreamableValue();
-              relatedQueries.done(JSON.parse(content));
+                  <Section title="Answer">
+                    <BotMessage content={answer.value} />
+                  </Section>
+                )
+              }
+            case 'related':
+              const relatedQueries = createStreamableValue()
+              relatedQueries.done(JSON.parse(content))
               return {
                 id,
                 component: (
-                  // <Section title="Related" separator={true}>
-                  //   <SearchRelated relatedQueries={relatedQueries.value} />
-                  // </Section>
-                  // <SearchRelated relatedQueries={relatedQueries.value} />
-                  <></>
-                ),
-              };
-            case "followup":
+                  <Section title="Related" separator={true}>
+                    <SearchRelated relatedQueries={relatedQueries.value} />
+                  </Section>
+                )
+              }
+            case 'followup':
               return {
                 id,
                 component: (
                   <Section title="Follow-up" className="pb-8">
                     <FollowupPanel />
                   </Section>
-                ),
-              };
+                )
+              }
           }
-        case "tool":
+        case 'tool':
           try {
-            const toolOutput = JSON.parse(content);
-            const isCollapsed = createStreamableValue();
-            isCollapsed.done(true);
-            const searchResults = createStreamableValue();
-            searchResults.done(JSON.stringify(toolOutput));
+            const toolOutput = JSON.parse(content)
+            const isCollapsed = createStreamableValue()
+            isCollapsed.done(true)
+            const searchResults = createStreamableValue()
+            searchResults.done(JSON.stringify(toolOutput))
             switch (name) {
-              case "search":
+              case 'search':
                 return {
                   id,
-                  component: <></>,
-                  // <SearchSection result={searchResults.value} />,
-                  isCollapsed: isCollapsed.value,
-                };
+                  component: <SearchSection result={searchResults.value} />,
+                  isCollapsed: isCollapsed.value
+                }
             }
           } catch (error) {
             return {
               id,
-              component: null,
-            };
+              component: null
+            }
           }
         default:
           return {
             id,
-            component: null,
-          };
+            component: null
+          }
       }
     })
-    .filter((message) => message !== null) as UIState;
-};
+    .filter(message => message !== null) as UIState
+}
