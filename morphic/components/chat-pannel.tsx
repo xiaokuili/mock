@@ -43,10 +43,11 @@ export function ChatPanel({ messages }: ChatPanelProps) {
     }
 
     // Add user message to UI state
+    const id = nanoid();
     setMessages((currentMessages) => [
       ...currentMessages,
       {
-        id: nanoid(),
+        id: id,
         component: <UserMessage message={input} />,
       },
     ]);
@@ -55,6 +56,7 @@ export function ChatPanel({ messages }: ChatPanelProps) {
     const formData = new FormData(e.currentTarget);
 
     const responseMessage = await submit(formData);
+
     setMessages((currentMessages) => [
       ...currentMessages,
       responseMessage as any,

@@ -9,10 +9,10 @@ import {
 import { CoreMessage, nanoid, ToolResultPart } from "ai";
 import { Spinner } from "@/components/ui/spinner";
 import { saveChat } from "@/lib/actions/chat";
-// import { Section } from "@/components/section";
+import { Section } from "@/components/section";
 
-// import { FollowupPanel } from "@/components/followup-panel";
-import { inquire, researcher, taskManager, querySuggestor } from "@/lib/agents";
+import { FollowupPanel } from "@/components/followup-panel";
+import { researcher } from "@/lib/agents";
 // import { writer } from "@/lib/agents/writer";
 // import { saveChat } from "@/lib/actions/chat";
 import { Chat } from "@/lib/types";
@@ -62,7 +62,6 @@ async function submit(formData?: FormData, skip?: boolean) {
     : formData?.has("related_query")
     ? "input_related"
     : "inquiry";
-
   // Add the user message to the state
   if (content) {
     aiState.update({
@@ -288,11 +287,9 @@ export const getUIStateFromAIState = (aiState: Chat) => {
               return {
                 id,
                 component: (
-                  // <Section title="Follow-up" className="pb-8">
-                  //   <FollowupPanel />
-                  // </Section>
-                  // <FollowupPanel />
-                  <></>
+                  <Section title="Follow-up" className="pb-8">
+                    <FollowupPanel />
+                  </Section>
                 ),
               };
           }

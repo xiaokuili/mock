@@ -14,7 +14,7 @@ export function Chat({ id }: ChatProps) {
   const router = useRouter();
   const path = usePathname();
   const [messages] = useUIState();
-  // const [aiState] = useAIState();
+  const [aiState] = useAIState();
   // 这两个就是各种刷新，现在还看不懂
   useEffect(() => {
     if (!path.includes("search") && messages.length === 1) {
@@ -23,11 +23,11 @@ export function Chat({ id }: ChatProps) {
   }, [id, path, messages]);
 
   // useEffect(() => {
-  // 最后一条是followup的时候刷新页面
-  // if (aiState.messages[aiState.messages.length - 1]?.type === "followup") {
-  //   // Refresh the page to chat history updates
-  //   router.refresh();
-  // }
+  //   // 最后一条是followup的时候刷新页面;
+  //   if (aiState.messages[aiState.messages.length - 1]?.type === "followup") {
+  //     // Refresh the page to chat history updates
+  //     router.refresh();
+  //   }
   // }, [aiState, router]);
 
   return (
