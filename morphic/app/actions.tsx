@@ -25,26 +25,23 @@ async function submit(formData?: FormData, skip?: boolean) {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()
+
   const uiStream = createStreamableUI()
+  const isCollapsed = createStreamableValue()
   const isGenerating = createStreamableValue(true)
-  const isCollapsed = createStreamableValue(false)
-  // Get the messages from the state, filter out the tool messages
-  const messages: CoreMessage[] = [...(aiState.get().messages as any[])].filter(
+
+  const messages: any[] = [...aiState.get().messages].filter(
     message =>
-      message.role !== 'tool' &&
-      message.type !== 'followup' &&
-      message.type !== 'related' &&
-      message.type !== 'end'
+      message.role != 'tool' &&
+      message.type != 'related' &&
+      message.type != 'followup' &&
+      message.type != 'end'
   )
 
-  // goupeiId is used to group the messages for collapse
   const groupeId = nanoid()
+  const maxMessages = 5
+  messages.splice(0, messages.length - maxMessages)
 
-  const useSpecificAPI = process.env.USE_SPECIFIC_API_FOR_WRITER === 'true'
-  const maxMessages = useSpecificAPI ? 5 : 10
-  // Limit the number of messages to the maximum
-  messages.splice(0, Math.max(messages.length - maxMessages, 0))
-  // Get the user input from the form data
   const userInput = skip
     ? `{"action": "skip"}`
     : (formData?.get('input') as string)
@@ -54,6 +51,7 @@ async function submit(formData?: FormData, skip?: boolean) {
     : formData
     ? JSON.stringify(Object.fromEntries(formData))
     : null
+
   const type = skip
     ? undefined
     : formData?.has('input')
@@ -61,7 +59,6 @@ async function submit(formData?: FormData, skip?: boolean) {
     : formData?.has('related_query')
     ? 'input_related'
     : 'inquiry'
-
   // Add the user message to the state
   if (content) {
     aiState.update({
@@ -81,6 +78,7 @@ async function submit(formData?: FormData, skip?: boolean) {
       content
     })
   }
+  console.log(messages)
 
   async function processEvents() {
     let action: any = { object: { next: 'proceed' } }
@@ -119,17 +117,13 @@ async function submit(formData?: FormData, skip?: boolean) {
 
     // If useSpecificAPI is enabled, only function calls will be made
     // If not using a tool, this model generates the answer
-    while (
-      useSpecificAPI
-        ? toolOutputs.length === 0 && answer.length === 0
-        : answer.length === 0
-    ) {
+    while (answer.length === 0) {
       // Search the web and generate the answer
       const { fullResponse, hasError, toolResponses } = await researcher(
         uiStream,
         streamText,
         messages,
-        useSpecificAPI
+        false
       )
       answer = fullResponse
       toolOutputs = toolResponses
@@ -155,7 +149,7 @@ async function submit(formData?: FormData, skip?: boolean) {
     }
 
     // If useSpecificAPI is enabled, generate the answer using the specific model
-    if (useSpecificAPI && answer.length === 0) {
+    if (answer.length === 0) {
       // modify the messages to be used by the specific model
       const modifiedMessages = aiState.get().messages.map(msg =>
         msg.role === 'tool'
